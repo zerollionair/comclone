@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  username  String
+  email     String
+  password  String
+  role      Role
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Order     Order[]
+  AuditLog  AuditLog?
+
+  Review Review[]
+}
+
+model Product {
+  id          String          @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  category    ProductCategory
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  OrderItem OrderItem[]
+  Inventory Inventory[]
+
+  Review Review[]
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  totalAmount Int
+  status      OrderStatus @default(PENDING)
+  payment     Payment?
+  shipping    Shipping?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  OrderItem OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  orders    Order    @relation(fields: [orderId], references: [id])
+  products  Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  orderId       String        @unique
+  orders        Order         @relation(fields: [orderId], references: [id])
+  method        PaymentMethod
+  status        PaymentStatus
+  amount        Float
+  transactionId String?
+  createdAt     DateTime      @default(now())
+}
+
+model Shipping {
+  id             String         @id @default(uuid())
+  orderId        String         @unique
+  orders         Order          @relation(fields: [orderId], references: [id])
+  address        String
+  status         ShippingStatus @default(PENDING)
+  trackingNumber String?
+  method         String
+  createdAt      DateTime       @default(now())
+}
+
+model Inventory {
+  id          String   @id @default(uuid())
+  productId   String
+  products    Product  @relation(fields: [productId], references: [id])
+  stockChange Int
+  reason      String?
+  createdAt   DateTime @default(now())
+}
+
+model Coupon {
+  id            String       @id @default(uuid())
+  code          String       @unique
+  discountType  DiscountType
+  discountValue Float
+  maxUsage      Int          @default(1)
+  expiryDate    DateTime?
+  createdAt     DateTime     @default(now())
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  action      String
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  COD
+}
+
+enum ShippingStatus {
+  PENDING
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  AMOUNT
+}
+
+enum ProductCategory {
+  ELECTRONICS
+  FASHION
+  FOOD
+  HOME
+  BEAUTY
+  SPORTS
+  TOYS
+  AUTOMOTIVE
+  BOOKS
+}
