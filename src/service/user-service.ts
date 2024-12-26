@@ -11,7 +11,6 @@ import { prismaClient } from '../application/database';
 import { HTTPException } from 'hono/http-exception';
 import { Role, User } from '@prisma/client';
 import { sign } from 'hono/jwt';
-import { setCookie } from 'hono/cookie';
 
 export class UserService {
   static async register(request: RegisterUserRequest): Promise<UserResponse> {
@@ -126,7 +125,7 @@ export class UserService {
     userId: string,
     request: ResetUserPassword,
   ): Promise<UserResponse> {
-    request = UserValidation.RESETPASSWORD.parse(request);
+    request = UserValidation.RESET_PASSWORD.parse(request);
 
     request.password = await Bun.password.hash(request.password, {
       algorithm: 'bcrypt',
