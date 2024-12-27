@@ -7,7 +7,7 @@ export class UserValidation {
     username: z.string().min(6).max(100),
     email: z.string().email(),
     password: z.string().min(6).max(100),
-    role: this.RoleEnum.optional(),
+    role: this.RoleEnum,
   });
 
   static readonly LOGIN: ZodType = z.object({
@@ -20,7 +20,7 @@ export class UserValidation {
     email: z.string().email(),
   });
 
-  static readonly RESETPASSWORD: ZodType = z.object({
+  static readonly RESET_PASSWORD: ZodType = z.object({
     password: z.string().min(6).max(100),
   });
 }
