@@ -24,7 +24,7 @@ authHandler.post('login', async (c) => {
     secure: true,
     httpOnly: true,
     sameSite: 'Strict',
-    maxAge: Math.floor(300),
+    maxAge: Math.floor(30000),
   });
   return c.json({
     data: response,
