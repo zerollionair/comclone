@@ -9,11 +9,11 @@ export type CreateProductRequest = {
 };
 export type UpdateProductRequest = {
   id: string;
-  name: string;
-  description: string;
-  price: number;
-  stock: number;
-  category: ProductCategory;
+  name?: string;
+  description?: string;
+  price?: number;
+  stock?: number;
+  category?: ProductCategory;
 };
 export type DeleteProductRequest = {
   id: string;
@@ -26,19 +26,18 @@ export type ProductResponse = {
   message?: string;
   category?: ProductCategory;
 };
-export type ProductFilterRequest = {
+export type FilterProductRequest = {
   name?: string;
   category?: ProductCategory;
   minPrice?: number;
   maxPrice?: number;
   inStock?: boolean;
-  sortBy?: 'price' | 'stock';
-  order?: 'asc' | 'desc';
+  page: number;
+  size: number;
 };
 export type SearchProductRequest = {
   name?: string;
-  phone?: string;
-  email?: string;
+  price?: number;
   page: number;
   size: number;
 };
