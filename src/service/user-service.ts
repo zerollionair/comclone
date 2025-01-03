@@ -74,7 +74,7 @@ export class UserService {
       {
         id: user.id,
         role: user.role,
-        exp: Math.floor(Date.now() / 1000 + 60 * 5),
+        exp: Math.floor(Date.now() / 1000 + 60 * 50),
       },
       secret,
       'HS256',

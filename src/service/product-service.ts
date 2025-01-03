@@ -178,7 +178,7 @@ export class ProductService {
 
     const products = await prismaClient.product.findMany({
       where: {
-        OR: filters,
+        AND: filters,
       },
       take: request.size,
       skip: skip,

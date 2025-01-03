@@ -66,11 +66,11 @@ productHandler.get('products-filter', async (c) => {
   const request: FilterProductRequest = {
     name: c.req.query('name') || undefined,
     category: c.req.query('category') || undefined,
-    minPrice: c.req.query('min-price')
-      ? Number(c.req.query('min-price'))
+    minPrice: c.req.query('minPrice')
+      ? Number(c.req.query('minPrice'))
       : undefined,
-    maxPrice: c.req.query('max-price')
-      ? Number(c.req.query('max-price'))
+    maxPrice: c.req.query('maxPrice')
+      ? Number(c.req.query('maxPrice'))
       : undefined,
     inStock: c.req.query('inStock')
       ? c.req.query('inStock') === 'true'
