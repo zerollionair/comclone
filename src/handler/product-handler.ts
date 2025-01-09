@@ -1,7 +1,6 @@
 import { Hono } from 'hono';
 import {
   CreateProductRequest,
-  DeleteProductRequest,
   FilterProductRequest,
   SearchProductRequest,
   UpdateProductRequest,
@@ -18,6 +17,7 @@ productHandler.post('products', async (c) => {
     data: response,
   });
 });
+
 productHandler.put('products/:id', async (c) => {
   const request = (await c.req.json()) as UpdateProductRequest;
   request.id = String(c.req.param('id'));
@@ -28,6 +28,7 @@ productHandler.put('products/:id', async (c) => {
     data: response,
   });
 });
+
 productHandler.delete('products/:id', async (c) => {
   const request = String(c.req.param('id'));
   const response = await ProductService.delete(request);
@@ -36,6 +37,7 @@ productHandler.delete('products/:id', async (c) => {
     data: response,
   });
 });
+
 productHandler.get('products/:id', async (c) => {
   const request = String(c.req.param('id'));
 

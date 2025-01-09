@@ -12,6 +12,7 @@ userHandler.get('users/current', async (c) => {
     data: response,
   });
 });
+
 userHandler.patch('current', async (c) => {
   const payload = c.get('jwtPayload');
   const request = await c.req.json();

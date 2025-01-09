@@ -15,9 +15,7 @@ export type UpdateProductRequest = {
   stock?: number;
   category?: ProductCategory;
 };
-export type DeleteProductRequest = {
-  id: string;
-};
+
 export type ProductResponse = {
   name?: string;
   description?: string;

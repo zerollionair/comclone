@@ -6,6 +6,7 @@ import { userHandler } from './handler/user-handler';
 import { authHandler } from './handler/auth-handler';
 import { jwt } from 'hono/jwt';
 import { productHandler } from './handler/product-handler';
+import { orderHandler } from './handler/order-handler';
 
 const app = new Hono();
 app.use('*', cors());
@@ -26,6 +27,7 @@ app.use(
 app.route('/', authHandler);
 app.route('/api', userHandler);
 app.route('/api', productHandler);
+app.route('/api', orderHandler);
 
 app.onError(async (err, c) => {
   if (err instanceof HTTPException) {
