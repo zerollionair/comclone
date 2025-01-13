@@ -6,39 +6,11 @@ import {
   UpdateProductRequest,
 } from '../model/product-model';
 import { ProductService } from '../service/product-service';
+import { authorizedRole } from '../middleware/auth-middleware';
 
 export const productHandler = new Hono();
 
-productHandler.post('products', async (c) => {
-  const request = (await c.req.json()) as CreateProductRequest;
-  const response = await ProductService.create(request);
-
-  return c.json({
-    data: response,
-  });
-});
-
-productHandler.put('products/:id', async (c) => {
-  const request = (await c.req.json()) as UpdateProductRequest;
-  request.id = String(c.req.param('id'));
-
-  const response = await ProductService.update(request);
-
-  return c.json({
-    data: response,
-  });
-});
-
-productHandler.delete('products/:id', async (c) => {
-  const request = String(c.req.param('id'));
-  const response = await ProductService.delete(request);
-
-  return c.json({
-    data: response,
-  });
-});
-
-productHandler.get('products/:id', async (c) => {
+productHandler.get('product/:id', async (c) => {
   const request = String(c.req.param('id'));
 
   const response = await ProductService.getById(request);
@@ -82,6 +54,37 @@ productHandler.get('products-filter', async (c) => {
   };
 
   const response = await ProductService.filter(request);
+
+  return c.json({
+    data: response,
+  });
+});
+
+productHandler.use(authorizedRole(['ADMIN']));
+
+productHandler.post('product', async (c) => {
+  const request = (await c.req.json()) as CreateProductRequest;
+  const response = await ProductService.create(request);
+
+  return c.json({
+    data: response,
+  });
+});
+
+productHandler.put('product/:id', async (c) => {
+  const request = (await c.req.json()) as UpdateProductRequest;
+  request.id = String(c.req.param('id'));
+
+  const response = await ProductService.update(request);
+
+  return c.json({
+    data: response,
+  });
+});
+
+productHandler.delete('product/:id', async (c) => {
+  const request = String(c.req.param('id'));
+  const response = await ProductService.delete(request);
 
   return c.json({
     data: response,

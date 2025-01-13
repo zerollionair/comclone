@@ -9,15 +9,13 @@ import { productHandler } from './handler/product-handler';
 import { orderHandler } from './handler/order-handler';
 
 const app = new Hono();
+
 app.use('*', cors());
-app.get('/', (c) => {
-  return c.json('Hello Hono!');
-});
 
 app.use(
   '/api/*',
   jwt({
-    secret: Bun.env.JWTSECRET as string,
+    secret: Bun.env.JWTACCESSSECRET as string,
     cookie: {
       key: Bun.env.COOKIEKEY as string,
     },
@@ -25,9 +23,13 @@ app.use(
 );
 
 app.route('/', authHandler);
-app.route('/api', userHandler);
-app.route('/api', productHandler);
-app.route('/api', orderHandler);
+
+const apiHandler = new Hono();
+apiHandler.route('/users', userHandler);
+apiHandler.route('/products', productHandler);
+apiHandler.route('/orders', orderHandler);
+
+app.route('/api', apiHandler);
 
 app.onError(async (err, c) => {
   if (err instanceof HTTPException) {
@@ -49,6 +51,7 @@ app.onError(async (err, c) => {
 });
 
 app.notFound((c) => c.json({ message: 'Route Not Found' }, 400));
+
 export default {
   port: 5000,
   fetch: app.fetch,

@@ -2,6 +2,7 @@ import { OrderValidation } from '../validation/order-validation';
 import { prismaClient } from '../application/database';
 import { CreateOrderRequest, OrderResponse } from '../model/order-model';
 import { HTTPException } from 'hono/http-exception';
+import { map } from 'zod';
 
 export class OrderService {
   static async create(request: CreateOrderRequest): Promise<OrderResponse> {
@@ -21,19 +22,16 @@ export class OrderService {
         },
       });
 
-      const productPriceMap = new Map(
+      const productMap = new Map(
         products.map((product) => [product.id, product.price]),
       );
 
-      let totalAmount = 0;
       const orderItems = items.map((item) => {
-        const productPrice = productPriceMap.get(item.productId);
-        if (productPrice == undefined) {
+        const productPrice = productMap.get(item.productId);
+        if (productPrice == undefined)
           throw new HTTPException(400, {
-            message: `product with id {item.productId} not found `,
+            message: `product with id {item.productId} not found`,
           });
-        }
-        totalAmount += productPrice * item.quantity;
 
         return {
           productId: item.productId,
@@ -41,26 +39,22 @@ export class OrderService {
           price: productPrice,
         };
       });
+      const totalAmount = orderItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
+
       const order = await tx.order.create({
         data: { userId, totalAmount, status: 'PENDING' },
       });
-
       await tx.orderItem.createMany({
-        data: orderItems.map((item) => ({
-          orderId: order.id,
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price,
-        })),
+        data: orderItems.map((item) => ({ ...item, orderId: order.id })),
       });
+
+      const { createdAt, updatedAt, ...orderWithoutDate } = order;
       return {
-        message: `Order created successfully.`,
-        order: {
-          id: order.id,
-          userId: userId,
-          totalAmount: order.totalAmount,
-          status: order.status,
-        },
+        message: 'Order created successfully',
+        order: orderWithoutDate,
         orderItems,
       };
     });

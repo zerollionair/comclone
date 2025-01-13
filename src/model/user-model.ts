@@ -13,7 +13,8 @@ export type LoginUserRequest = {
 export type UserResponse = {
   message?: string;
   username?: string;
-  token?: string;
+  tokenAccess?: string;
+  refreshToken?: string;
 };
 
 export type UserCurrent = {

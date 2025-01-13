@@ -1,10 +1,11 @@
 import { Hono } from 'hono';
 import { UserService } from '../service/user-service';
 import { deleteCookie } from 'hono/cookie';
+import { authHandler } from './auth-handler';
 
 export const userHandler = new Hono();
 
-userHandler.get('users/current', async (c) => {
+userHandler.get('current', async (c) => {
   const payload = c.get('jwtPayload');
 
   const response = await UserService.current(payload.id);
@@ -24,7 +25,7 @@ userHandler.patch('current', async (c) => {
   });
 });
 
-userHandler.patch('users/current/reset-password', async (c) => {
+userHandler.patch('current/reset-password', async (c) => {
   const payload = c.get('jwtPayload');
   const request = await c.req.json();
 
@@ -35,7 +36,7 @@ userHandler.patch('users/current/reset-password', async (c) => {
   });
 });
 
-userHandler.delete('users/current', async (c) => {
+userHandler.delete('current', async (c) => {
   deleteCookie(c, 'user');
   return c.json({
     data: 'logout success',
