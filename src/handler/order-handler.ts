@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { CreateOrderRequest } from '../model/order-model';
 import { OrderService } from '../service/order-service';
+import { authorizedRole } from '../middleware/auth-middleware';
+import { productHandler } from './product-handler';
 
 export const orderHandler = new Hono();
 

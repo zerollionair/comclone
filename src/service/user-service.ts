@@ -68,21 +68,41 @@ export class UserService {
         message: 'email or password is wrong',
       });
     }
-    const secret = Bun.env.JWTSECRET as string;
+    const accessSecret = Bun.env.JWTACCESSSECRET as string;
+    const refreshSecret = Bun.env.JWTREFRESHSECRET as string;
 
-    const token = await sign(
+    const accessToken = await sign(
       {
         id: user.id,
         role: user.role,
-        exp: Math.floor(Date.now() / 1000 + 60 * 50),
+        exp: Math.floor(Date.now() / 1000 + 60 * 15),
       },
-      secret,
+      accessSecret,
       'HS256',
     );
 
+    const refreshToken = await sign(
+      {
+        id: user.id,
+        role: user.role,
+        exp: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7),
+      },
+      refreshSecret,
+      'HS256',
+    );
+
+    await prismaClient.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        refreshToken: refreshToken,
+      },
+    });
     return {
       username: user.username,
-      token: token,
+      tokenAccess: accessToken,
+      refreshToken: refreshToken,
     };
   }
   static async current(request: string): Promise<UserCurrent> {
