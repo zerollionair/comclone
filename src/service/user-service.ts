@@ -52,6 +52,7 @@ export class UserService {
         email: true,
         password: true,
         role: true,
+        blacklist: true,
       },
     });
     if (!user) {
@@ -68,6 +69,11 @@ export class UserService {
         message: 'email or password is wrong',
       });
     }
+
+    if (user.blacklist === true) {
+      return { message: 'account is blacklisted' };
+    }
+
     const accessSecret = Bun.env.JWTACCESSSECRET as string;
     const refreshSecret = Bun.env.JWTREFRESHSECRET as string;
 

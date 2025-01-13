@@ -4,6 +4,7 @@ import { UserService } from '../service/user-service';
 import { getCookie, setCookie } from 'hono/cookie';
 import { verify, sign, decode } from 'hono/jwt';
 import { HTTPException } from 'hono/http-exception';
+import { prismaClient } from '../application/database';
 
 export const authHandler = new Hono<{}>();
 
@@ -31,6 +32,7 @@ authHandler.post('login', async (c) => {
   });
 
   return c.json({
+    message: response.message,
     accessToken: response.tokenAccess,
   });
 });
@@ -53,6 +55,24 @@ authHandler.post('refresh', async (c) => {
 
   const { payload } = decode(refreshToken);
   console.log(payload);
+
+  const isRefreshTokenValid = await prismaClient.user.findFirst({
+    where: {
+      id: payload.id,
+    },
+    select: {
+      refreshToken: true,
+    },
+  });
+  if (
+    !isRefreshTokenValid ||
+    isRefreshTokenValid.refreshToken !== refreshToken
+  ) {
+    throw new HTTPException(401, {
+      message: 'you must login',
+    });
+  }
+
   const accessSecret = Bun.env.JWTACCESSSECRET as string;
 
   const newAccessToken = await sign(
