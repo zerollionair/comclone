@@ -7,6 +7,7 @@ import { authHandler } from './handler/auth-handler';
 import { jwt } from 'hono/jwt';
 import { productHandler } from './handler/product-handler';
 import { orderHandler } from './handler/order-handler';
+import { prismaClient } from './application/database';
 
 const app = new Hono();
 
@@ -21,10 +22,28 @@ app.use(
     },
   }),
 );
+app.use('/api/*', async (c, next) => {
+  const user = c.get('jwtPayload');
 
+  const isBlacklist = await prismaClient.user.findUnique({
+    where: {
+      id: user.id,
+    },
+    select: {
+      blacklist: true,
+    },
+  });
+  if (isBlacklist!.blacklist === true) {
+    return c.json({
+      message: 'account is blacklisted',
+    });
+  }
+  await next();
+});
 app.route('/', authHandler);
 
 const apiHandler = new Hono();
+
 apiHandler.route('/users', userHandler);
 apiHandler.route('/products', productHandler);
 apiHandler.route('/orders', orderHandler);
