@@ -73,7 +73,7 @@ productHandler.post('product', async (c) => {
 
 productHandler.put('product/:id', async (c) => {
   const request = (await c.req.json()) as UpdateProductRequest;
-  request.id = String(c.req.param('id'));
+  request.productId = String(c.req.param('id'));
 
   const response = await ProductService.update(request);
 

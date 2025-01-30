@@ -34,7 +34,7 @@ export class ProductService {
 
   static async update(request: UpdateProductRequest): Promise<ProductResponse> {
     request = ProductValidation.UPDATE.parse(request);
-    await this.ProductMustExist(request.id);
+    await this.ProductMustExist(request.productId);
 
     const updatedProduct: Partial<Product> = {};
 
@@ -55,7 +55,7 @@ export class ProductService {
     }
     await prismaClient.product.update({
       where: {
-        id: request.id,
+        id: request.productId,
       },
       data: updatedProduct,
     });
@@ -63,13 +63,13 @@ export class ProductService {
     return { message: 'updated successfully' };
   }
 
-  static async delete(request: string): Promise<ProductResponse> {
-    request = ProductValidation.DELETE.parse(request);
-    await this.ProductMustExist(request);
+  static async delete(productId: string): Promise<ProductResponse> {
+    productId = ProductValidation.DELETE.parse(productId);
+    await this.ProductMustExist(productId);
 
     await prismaClient.product.delete({
       where: {
-        id: request,
+        id: productId,
       },
     });
     return { message: 'deleted successfully' };
@@ -205,6 +205,7 @@ export class ProductService {
       },
     };
   }
+
   static async ProductMustExist(productId: string): Promise<ProductResponse> {
     const product = await prismaClient.product.findFirst({
       where: {
