@@ -7,8 +7,9 @@ export type CreateProductRequest = {
   stock: number;
   category: ProductCategory;
 };
+
 export type UpdateProductRequest = {
-  id: string;
+  productId: string;
   name?: string;
   description?: string;
   price?: number;
@@ -24,6 +25,7 @@ export type ProductResponse = {
   message?: string;
   category?: ProductCategory;
 };
+
 export type FilterProductRequest = {
   name?: string;
   category?: ProductCategory;
@@ -33,6 +35,7 @@ export type FilterProductRequest = {
   page: number;
   size: number;
 };
+
 export type SearchProductRequest = {
   name?: string;
   price?: number;

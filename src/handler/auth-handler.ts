@@ -17,6 +17,7 @@ authHandler.post('register', async (c) => {
     data: response,
   });
 });
+
 authHandler.post('login', async (c) => {
   const login = (await c.req.json()) as LoginUserRequest;
 
@@ -36,6 +37,7 @@ authHandler.post('login', async (c) => {
     accessToken: response.tokenAccess,
   });
 });
+
 authHandler.post('refresh', async (c) => {
   const refreshToken = getCookie(c, 'user');
   if (!refreshToken) {

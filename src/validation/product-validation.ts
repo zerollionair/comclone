@@ -16,21 +16,22 @@ export class ProductValidation {
   static readonly CREATE: ZodType = z.object({
     name: z.string().min(4).max(100),
     description: z.string().min(4).max(100),
-    price: z.number().min(4),
-    stock: z.number().min(1),
+    price: z.number().min(4).positive(),
+    stock: z.number().min(1).positive(),
     category: this.productCategoryEnum,
   });
 
   static readonly GET: ZodType = z.string().min(4).max(100);
 
   static readonly UPDATE: ZodType = z.object({
-    id: z.string().min(4).max(100),
+    productId: z.string().min(4).max(100),
     name: z.string().min(4).max(100).optional(),
     description: z.string().min(4).max(100).optional(),
-    price: z.number().positive().optional(),
-    stock: z.number().min(1).optional(),
+    price: z.number().min(4).positive().optional(),
+    stock: z.number().min(1).positive().optional(),
     category: this.productCategoryEnum.optional(),
   });
+
   static readonly DELETE: ZodType = z.string().min(4).max(100);
 
   static readonly SEARCH: ZodType = z.object({

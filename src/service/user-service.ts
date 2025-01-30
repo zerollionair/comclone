@@ -18,10 +18,21 @@ export class UserService {
 
     const totalUserWithSameEmail = await prismaClient.user.count({
       where: {
-        username: request.email,
+        email: request.email,
       },
     });
     if (totalUserWithSameEmail != 0) {
+      throw new HTTPException(400, {
+        message: 'email already exists',
+      });
+    }
+
+    const totalUserWithSameUsername = await prismaClient.user.count({
+      where: {
+        username: request.username,
+      },
+    });
+    if (totalUserWithSameUsername != 0) {
       throw new HTTPException(400, {
         message: 'username already exists',
       });
@@ -33,10 +44,13 @@ export class UserService {
 
     request.role = Role.CUSTOMER;
 
-    await prismaClient.user.create({
+    const newUser = await prismaClient.user.create({
       data: request,
     });
 
+    await prismaClient.chart.create({
+      data: { userId: newUser.id },
+    });
     return { message: 'successfully registered' };
   }
   static async login(request: LoginUserRequest): Promise<UserResponse> {
@@ -111,10 +125,11 @@ export class UserService {
       refreshToken: refreshToken,
     };
   }
-  static async current(request: string): Promise<UserCurrent> {
+  static async current(userId: string): Promise<UserCurrent> {
+    userId = UserValidation.GET.parse(userId);
     const user = await prismaClient.user.findUnique({
       where: {
-        id: request,
+        id: userId,
       },
       select: {
         username: true,

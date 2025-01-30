@@ -14,19 +14,19 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  username     String    @unique
-  email        String    @unique
+  id           String   @id @default(uuid())
+  username     String   @unique
+  email        String   @unique
   password     String
   role         Role
-  refreshToken String    @default("")
-  blacklist    Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  Order        Order[]
-  AuditLog     AuditLog?
+  refreshToken String   @default("")
+  blacklist    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   Review Review[]
+  Order  Order[]
+  Chart  Chart?
 }
 
 model Product {
@@ -39,35 +39,43 @@ model Product {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
-  OrderItem OrderItem[]
-  Inventory Inventory[]
+  Review    Review[]
+  ChartItem ChartItem?
+}
 
-  Review Review[]
+model Chart {
+  id          String @id @default(uuid())
+  userId      String @unique
+  user        User   @relation(fields: [userId], references: [id])
+  totalAmount Int    @default(0)
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Order     Order?
+  ChartItem ChartItem[]
+}
+
+model ChartItem {
+  id        String   @id @default(uuid())
+  chartId   String
+  productId String   @unique
+  charts    Chart    @relation(fields: [chartId], references: [id])
+  products  Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  createdAt DateTime @default(now())
 }
 
 model Order {
-  id          String      @id @default(uuid())
-  userId      String
-  user        User        @relation(fields: [userId], references: [id])
-  totalAmount Int
-  status      OrderStatus @default(PENDING)
-  payment     Payment?
-  shipping    Shipping?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  OrderItem OrderItem[]
-}
-
-model OrderItem {
-  id        String   @id @default(uuid())
-  orderId   String
-  productId String
-  orders    Order    @relation(fields: [orderId], references: [id])
-  products  Product  @relation(fields: [productId], references: [id])
-  quantity  Int
-  price     Float
-  createdAt DateTime @default(now())
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  chartId   String      @unique
+  charts    Chart       @relation(fields: [chartId], references: [id])
+  status    OrderStatus @default(PENDING)
+  payment   Payment?
+  shipping  Shipping?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
 model Payment {
@@ -92,15 +100,6 @@ model Shipping {
   createdAt      DateTime       @default(now())
 }
 
-model Inventory {
-  id          String   @id @default(uuid())
-  productId   String
-  products    Product  @relation(fields: [productId], references: [id])
-  stockChange Int
-  reason      String?
-  createdAt   DateTime @default(now())
-}
-
 model Coupon {
   id            String       @id @default(uuid())
   code          String       @unique
@@ -120,15 +119,6 @@ model Review {
   rating    Int
   comment   String
   createdAt DateTime @default(now())
-}
-
-model AuditLog {
-  id          Int      @id @default(autoincrement())
-  username    String   @unique
-  user        User     @relation(fields: [username], references: [username])
-  action      String
-  description String?
-  createdAt   DateTime @default(now())
 }
 
 enum OrderStatus {
